@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using SimpleLexer;
@@ -27,32 +27,66 @@ namespace SimpleLangParser
             Block();
         }
 
-        public void Expr() 
+        public void Expr()
+        {
+            CheckIdNumBrackets();
+            CheckMultDivision();
+            CheckPlusMinus();
+        }
+
+        public void CheckIdNumBrackets()
         {
             if (l.LexKind == Tok.ID || l.LexKind == Tok.INUM)
+                l.NextLexem();
+            else if (l.LexKind == Tok.LEFT_BRACKET)
             {
                 l.NextLexem();
+                Expr();
+                if (l.LexKind == Tok.RIGHT_BRACKET)
+                    l.NextLexem();
+                else
+                    SyntaxError(") expected");
             }
             else
-            {
                 SyntaxError("expression expected");
+        }
+
+        public void CheckPlusMinus()
+        {
+            while (l.LexKind == Tok.PLUS || l.LexKind == Tok.MINUS)
+            {
+                l.NextLexem();
+                CheckIdNumBrackets();
+                CheckMultDivision();
+                CheckPlusMinus();
             }
         }
 
-        public void Assign() 
+        public void CheckMultDivision()
+        {
+            while (l.LexKind == Tok.MULT || l.LexKind == Tok.DIVISION)
+            {
+                l.NextLexem();
+                CheckIdNumBrackets();
+                CheckMultDivision();
+            }
+        }
+
+        public void Assign()
         {
             l.NextLexem();  // пропуск id
             if (l.LexKind == Tok.ASSIGN)
             {
                 l.NextLexem();
             }
-            else {
+            else
+            {
                 SyntaxError(":= expected");
             }
             Expr();
         }
 
-        public void StatementList() 
+        public void StatementList()
         {
             Statement();
             while (l.LexKind == Tok.SEMICOLON)
@@ -62,23 +96,28 @@ namespace SimpleLangParser
             }
         }
 
-        public void Statement() 
+        public void Statement()
         {
             switch (l.LexKind)
             {
                 case Tok.BEGIN:
                     {
-                        Block(); 
+                        Block();
                         break;
                     }
                 case Tok.CYCLE:
                     {
-                        Cycle(); 
+                        Cycle();
                         break;
                     }
                 case Tok.ID:
                     {
                         Assign();
+                        break;
+                    }
+                case Tok.FOR:
+                    {
+                        For();
                         break;
                     }
                 default:
@@ -89,7 +128,7 @@ namespace SimpleLangParser
             }
         }
 
-        public void Block() 
+        public void Block()
         {
             l.NextLexem();    // пропуск begin
             StatementList();
@@ -101,17 +140,32 @@ namespace SimpleLangParser
             {
                 SyntaxError("end expected");
             }
-
         }
 
-        public void Cycle() 
+        public void Cycle()
         {
             l.NextLexem();  // пропуск cycle
             Expr();
             Statement();
         }
 
-        public void SyntaxError(string message) 
+        public void For()
+        {
+            l.NextLexem();
+            Assign();
+            if (l.LexKind == Tok.TO)
+                l.NextLexem();
+            else
+                SyntaxError("to expected");
+            Expr();
+            if (l.LexKind == Tok.DO)
+                l.NextLexem();
+            else
+                SyntaxError("do expected");
+            Statement();
+        }
+
+        public void SyntaxError(string message)
         {
             var errorMessage = "Syntax error in line " + l.LexRow.ToString() + ":\n";
             errorMessage += l.FinishCurrentLine() + "\n";
@@ -122,6 +176,6 @@ namespace SimpleLangParser
             }
             throw new ParserException(errorMessage);
         }
-   
+
     }
 }
