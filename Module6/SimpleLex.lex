@@ -32,6 +32,13 @@ ID {Alpha}{AlphaDigit}*
 
 ":=" { return (int)Tokens.ASSIGN; }
 ";" { return (int)Tokens.SEMICOLON; }
+"+" { return (int)Tokens.PLUS; }
+"-" { return (int)Tokens.MINUS; }
+"*" { return (int)Tokens.MULT; }
+"/" { return (int)Tokens.DIVISION; }
+"(" { return (int)Tokens.LEFT_BRACKET; }
+")" { return (int)Tokens.RIGHT_BRACKET; }
+"," { return (int)Tokens.COMMA; }
 
 [^ \r\n] {
 	LexError();
@@ -66,6 +73,10 @@ class ScannerHelper
     keywords.Add("begin",(int)Tokens.BEGIN);
     keywords.Add("end",(int)Tokens.END);
     keywords.Add("cycle",(int)Tokens.CYCLE);
+    keywords.Add("while",(int)Tokens.WHILE);
+	keywords.Add("do",(int)Tokens.DO);
+	keywords.Add("write",(int)Tokens.WRITE);
+	keywords.Add("var",(int)Tokens.VAR);
   }
   public static int GetIDToken(string s)
   {

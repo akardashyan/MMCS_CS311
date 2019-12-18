@@ -65,4 +65,50 @@ namespace ProgramTree
         }
     }
 
+    public class WhileNode : StatementNode
+    {
+        public ExprNode Expr { get; set; }
+        public StatementNode Stat { get; set; }
+        public WhileNode(ExprNode expr, StatementNode stat)
+        {
+            Expr = expr;
+            Stat = stat;
+        }
+    }
+
+    public class WriteNode : StatementNode
+    {
+        public ExprNode Expr { get; set; }
+        public WriteNode(ExprNode expr)
+        {
+            Expr = expr;
+        }
+    }
+
+    public class VarDefNode : StatementNode
+    {
+        public List<Node> VarList = new List<Node>();
+        public VarDefNode(Node id)
+        {
+            Add(id);
+        }
+        public void Add(Node id)
+        {
+            VarList.Add(id);
+        }
+
+    }
+
+    public class BinaryNode : ExprNode
+    {
+        ExprNode Left;
+        ExprNode Right;
+        char Operation;
+        public BinaryNode(ExprNode left, ExprNode right, char op)
+        {
+            Left = left;
+            Right = right;
+            Operation = op;
+        }
+    }
 }
