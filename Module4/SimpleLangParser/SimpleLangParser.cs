@@ -36,38 +36,63 @@ namespace SimpleLangParser
 
         public void CheckIdNumBrackets()
         {
+            // Если ID или число, берем следующую лексему
             if (l.LexKind == Tok.ID || l.LexKind == Tok.INUM)
-                l.NextLexem();
-            else if (l.LexKind == Tok.LEFT_BRACKET)
             {
                 l.NextLexem();
+            }
+            // Если текущая лексема левая скобка
+            else if (l.LexKind == Tok.LEFT_BRACKET)
+            {
+                // Переходим к следующей лексеме
+                l.NextLexem();
+                // Находим все лексемы до правой скобки
                 Expr();
+
+                // Если нашли правую скобку, 
+                // то переходим к след лексеме
+                // иначе ошибка
                 if (l.LexKind == Tok.RIGHT_BRACKET)
+                {
                     l.NextLexem();
+                }
                 else
+                {
                     SyntaxError(") expected");
+                }
             }
             else
-                SyntaxError("expression expected");
+            { 
+                SyntaxError("expression expected"); 
+            }
         }
 
         public void CheckPlusMinus()
         {
+            // Если текущая лексема + -
             while (l.LexKind == Tok.PLUS || l.LexKind == Tok.MINUS)
             {
+                // Переходим след лексема
                 l.NextLexem();
+                // Проверяем след лексему на число или ид
                 CheckIdNumBrackets();
+                // Проверяем след лексему на * /
                 CheckMultDivision();
+                // Проверяем след лексему на + -
                 CheckPlusMinus();
             }
         }
 
         public void CheckMultDivision()
         {
+            // Если текущая лексема * /
             while (l.LexKind == Tok.MULT || l.LexKind == Tok.DIVISION)
             {
+                // Переходим к след лексеме
                 l.NextLexem();
+                // Проверяем на число и ид
                 CheckIdNumBrackets();
+                // Проверяем на лексему * /
                 CheckMultDivision();
             }
         }
@@ -153,15 +178,31 @@ namespace SimpleLangParser
         {
             l.NextLexem();
             Assign();
+
+            // Ищем лексему To
             if (l.LexKind == Tok.TO)
+            {
                 l.NextLexem();
+            }
             else
-                SyntaxError("to expected");
+            { 
+                SyntaxError("to expected"); 
+            }
+            
+            // Обрабатываем условие цикла
             Expr();
+
+            // Ищем лексему DO
             if (l.LexKind == Tok.DO)
+            {
                 l.NextLexem();
+            }
             else
-                SyntaxError("do expected");
+            { 
+                SyntaxError("do expected"); 
+            }
+            
+            // Обрабатываем тело цикла
             Statement();
         }
 
